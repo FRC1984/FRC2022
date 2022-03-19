@@ -18,6 +18,10 @@ public class Drivetrain {
     private static DifferentialDrive drive;
 
     private JawaXboxController controller;
+
+    private final double kSpeedDelta = 0.05;
+    private double oldspeed = 0;
+    private double oldturn = 0;
     
     public Drivetrain(int leftID1, int leftID2, int rightID1, int rightID2, JawaXboxController controller) {
         leftDrive1 = new CANSparkMax(leftID1, MotorType.kBrushless);
@@ -38,7 +42,29 @@ public class Drivetrain {
         drive.arcadeDrive(controller.getLSY(), controller.getRSX());
     }
 
-    public void run(double turnDivisor) {
-        drive.arcadeDrive(controller.getLSY(), controller.getRSX() / turnDivisor);
+    // public void run(double turnDivisor) {
+    //     drive.arcadeDrive(controller.getLSY(), controller.getRSX() / turnDivisor);
+    // }
+
+    //smoother movement
+    public void smoothRun() {
+        double newpos = controller.getLSY();
+        double newturn = controller.getRSX();
+        if (newpos - oldspeed > kSpeedDelta ) {
+            newpos = oldspeed+kSpeedDelta;
+        }
+        if (oldspeed - newpos > kSpeedDelta) {
+            newpos = oldspeed - kSpeedDelta;
+        }
+        if (newturn - oldturn > kSpeedDelta ) {
+            newturn = oldturn+kSpeedDelta;
+        }
+        if (oldturn - newturn > kSpeedDelta) {
+            newturn = oldturn - kSpeedDelta;
+        }
+        drive.arcadeDrive(newpos, newturn);
+        oldspeed = newpos;
+        oldturn = newturn;
+        //FIND DIFFERENCE BETWEN LAST SPEED (THROTTLE POS) AND CURRENT, IF GREATER THAN ALLOWED, SET TO ALLOWED, 
     }
 }

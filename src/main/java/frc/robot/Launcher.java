@@ -21,8 +21,14 @@ public class Launcher {
 
         //the top and middle motors need variable speeds, intake doesnt, 
         //do the triggers return  -1,1 range?
-        topMotor.set(controller.getRT());
-        midMotor.set(controller.getLT());
+        midMotor.set(-controller.getLT() + controller.getRT());
+        if (controller.aButton.get()) {
+            topMotor.set(1);
+        } else if (controller.yButton.get()){
+            topMotor.set(-1);
+        } else {
+            topMotor.set(0);
+        }
         if (controller.lbButton.get()) {
             intakeMotor.set(1);
         } else {
