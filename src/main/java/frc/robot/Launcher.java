@@ -1,6 +1,7 @@
 package frc.robot;
 
 
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -17,24 +18,65 @@ public class Launcher {
         this.controller = controller;
     }
     
-    public void run() {
-
-        //the top and middle motors need variable speeds, intake doesnt, 
-        //do the triggers return  -1,1 range?
-        midMotor.set(-controller.getLT() + controller.getRT());
-        if (controller.aButton.get()) {
-            topMotor.set(1);
-        } else if (controller.yButton.get()){
-            topMotor.set(-1);
-        } else {
-            topMotor.set(0);
+    public void run(int ctrlSet) {
+        if (ctrlSet == 1) {
+            if (controller.getAButton()) {
+                intakeMotor.set(1);
+            } else if (controller.getBButton()) {
+                intakeMotor.set(-1);
+            } else {
+                intakeMotor.set(0);
+            }
+            if (controller.getPOV() < 0) {
+                midMotor.set(0);
+            } else if (controller.getPOV() < 90 || controller.getPOV() >270) {
+                midMotor.set(-1);
+            } else {
+                midMotor.set(1);
+            }
+            if (controller.getYButton()) {
+                // REDUCED SPEED 
+                topMotor.set(-.75);
+            } else if (controller.getXButton()) {
+                topMotor.set(1);
+            } else {
+                topMotor.set(0);
+            }
+        } else if (ctrlSet == 2) {
+            midMotor.set(-controller.getLT() + controller.getRT());
+            if (controller.aButton.get()) {
+                topMotor.set(1);
+            } else if (controller.yButton.get()){
+                topMotor.set(-1);
+            } else {
+                topMotor.set(0);
+            }
+            if (controller.lbButton.get()) {
+                intakeMotor.set(1);
+            } else {
+                intakeMotor.set(0);
+            }
         }
-        if (controller.lbButton.get()) {
-            intakeMotor.set(1);
-        } else {
-            //.set(0) or .stopMotor() better??
-            intakeMotor.set(0);
-        }
-
+        
     }
+    public void runIntake(double speed) {
+        intakeMotor.set(speed);
+    }
+    public void runMid(double speed) {
+        midMotor.set(speed);
+    }
+    public void runTop(double speed) {
+        topMotor.set(speed);
+    }
+    public void runMotor(int id, double speed) {
+        if (id == intakeMotor.getDeviceId()) {
+            intakeMotor.set(speed);
+        }
+        if (id == midMotor.getDeviceId()) {
+            midMotor.set(speed);
+        }
+        if (id == midMotor.getDeviceId()) {
+            topMotor.set(speed);
+        }
+    } 
 }

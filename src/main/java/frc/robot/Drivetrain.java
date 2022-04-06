@@ -21,7 +21,10 @@ public class Drivetrain {
 
     private final double kSpeedDelta = 0.05;
     private double oldspeed = 0;
+    /*
+    private final double maxTurn = 1;
     private double oldturn = 0;
+    */
     
     public Drivetrain(int leftID1, int leftID2, int rightID1, int rightID2, JawaXboxController controller) {
         leftDrive1 = new CANSparkMax(leftID1, MotorType.kBrushless);
@@ -33,7 +36,7 @@ public class Drivetrain {
         rightDrive = new MotorControllerGroup(rightDrive1, rightDrive2);
         drive = new DifferentialDrive(leftDrive, rightDrive);
 
-        rightDrive.setInverted(true); // TODO: Check this
+        rightDrive.setInverted(true); // possible issue
 
         this.controller = controller;
     }
@@ -42,12 +45,15 @@ public class Drivetrain {
         drive.arcadeDrive(controller.getLSY(), controller.getRSX());
     }
 
-    // public void run(double turnDivisor) {
-    //     drive.arcadeDrive(controller.getLSY(), controller.getRSX() / turnDivisor);
-    // }
+    public void run(double turnDivisor) {
+         drive.arcadeDrive(controller.getLSY() - 0.1, controller.getRSX() / turnDivisor);
+    }
+    public void run(double speed, double rotation) {
+        drive.arcadeDrive(speed, rotation);
+    }
 
     //smoother movement
-    public void smoothRun() {
+    public void smoothRun(double turnDivisor) {
         double newpos = controller.getLSY();
         double newturn = controller.getRSX();
         if (newpos - oldspeed > kSpeedDelta ) {
@@ -56,15 +62,18 @@ public class Drivetrain {
         if (oldspeed - newpos > kSpeedDelta) {
             newpos = oldspeed - kSpeedDelta;
         }
-        if (newturn - oldturn > kSpeedDelta ) {
-            newturn = oldturn+kSpeedDelta;
+        //sets turning speed like driving, is too hard to control
+        /*
+        if (newturn - oldturn > maxTurn ) {
+            newturn = oldturn+maxTurn;
         }
-        if (oldturn - newturn > kSpeedDelta) {
-            newturn = oldturn - kSpeedDelta;
+        if (oldturn - newturn > maxTurn) {
+            newturn = oldturn - maxTurn;
         }
-        drive.arcadeDrive(newpos, newturn);
+        */
+        drive.arcadeDrive(newpos, newturn / turnDivisor);
         oldspeed = newpos;
-        oldturn = newturn;
-        //FIND DIFFERENCE BETWEN LAST SPEED (THROTTLE POS) AND CURRENT, IF GREATER THAN ALLOWED, SET TO ALLOWED, 
+        //oldturn = newturn;
+        //FIND DIFFERENCE BETWEN LAST SPEED (THROTTLE POS) AND CURRENT, IF GREATER THAN ALLOWED, SET TO ALLOWED
     }
 }
